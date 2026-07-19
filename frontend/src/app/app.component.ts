@@ -1,0 +1,2 @@
+import{Component,inject}from'@angular/core';import{RouterLink,RouterOutlet}from'@angular/router';import{AuthService}from'./auth.service';
+@Component({selector:'galleryvote-root',standalone:true,imports:[RouterLink,RouterOutlet],template:`<header><a class="brand" routerLink="/">Gallery<span>Vote</span></a><nav><a routerLink="/">Explore</a><a routerLink="/login">Sign in</a><button (click)="auth.logout()">Sign out</button></nav></header><main><router-outlet/></main><footer>Built for photographs worth discovering.</footer>`})export class AppComponent{auth=inject(AuthService)}

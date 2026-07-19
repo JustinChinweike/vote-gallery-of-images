@@ -1,0 +1,21 @@
+spring:
+  application.name: galleryvote
+  datasource:
+    url: ${GALLERY_DB_URL:jdbc:postgresql://localhost:5432/galleryvote}
+    username: ${GALLERY_DB_USER:galleryvote}
+    password: ${GALLERY_DB_PASSWORD:galleryvote}
+  jpa:
+    open-in-view: false
+    hibernate.ddl-auto: validate
+  servlet.multipart:
+    max-file-size: 8MB
+    max-request-size: 8MB
+galleryvote:
+  jwt-secret: ${GALLERY_JWT_SECRET:development-only-secret-change-me-32bytes}
+  storage:
+    endpoint: ${GALLERY_STORAGE_ENDPOINT:http://localhost:9000}
+    access-key: ${GALLERY_STORAGE_ACCESS_KEY:minioadmin}
+    secret-key: ${GALLERY_STORAGE_SECRET_KEY:minioadmin}
+    bucket: ${GALLERY_STORAGE_BUCKET:galleryvote}
+management.endpoints.web.exposure.include: health,info,metrics,prometheus
+springdoc.swagger-ui.path: /swagger-ui.html

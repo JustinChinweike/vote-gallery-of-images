@@ -1,0 +1,10 @@
+CREATE TABLE users (id BIGSERIAL PRIMARY KEY,username VARCHAR(50) NOT NULL,email VARCHAR(254) NOT NULL,password_hash VARCHAR(255) NOT NULL,role VARCHAR(20) NOT NULL DEFAULT 'USER',created_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE UNIQUE INDEX uk_users_username_lower ON users(lower(username));
+CREATE UNIQUE INDEX uk_users_email_lower ON users(lower(email));
+CREATE TABLE contests (id BIGSERIAL PRIMARY KEY,title VARCHAR(120) NOT NULL,description VARCHAR(2000) NOT NULL,owner_id BIGINT NOT NULL REFERENCES users(id),status VARCHAR(20) NOT NULL,starts_at TIMESTAMPTZ NOT NULL,ends_at TIMESTAMPTZ NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT now(),CONSTRAINT ck_contest_dates CHECK(ends_at>starts_at));
+CREATE INDEX idx_contests_status_dates ON contests(status,starts_at,ends_at);
+CREATE TABLE submissions (id BIGSERIAL PRIMARY KEY,contest_id BIGINT NOT NULL REFERENCES contests(id) ON DELETE CASCADE,author_id BIGINT NOT NULL REFERENCES users(id),title VARCHAR(160) NOT NULL,object_key VARCHAR(255) NOT NULL UNIQUE,content_type VARCHAR(50) NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE INDEX idx_submissions_contest_created ON submissions(contest_id,created_at DESC);
+CREATE TABLE votes (id BIGSERIAL PRIMARY KEY,user_id BIGINT NOT NULL REFERENCES users(id),submission_id BIGINT NOT NULL REFERENCES submissions(id) ON DELETE CASCADE,created_at TIMESTAMPTZ NOT NULL DEFAULT now(),CONSTRAINT uk_vote_user_submission UNIQUE(user_id,submission_id));
+CREATE INDEX idx_votes_submission ON votes(submission_id);
+CREATE INDEX idx_votes_created ON votes(created_at);

@@ -1,0 +1,1 @@
+import{Routes}from'@angular/router';import{ExploreComponent}from'./explore.component';import{LoginComponent}from'./login.component';export const routes:Routes=[{path:'',component:ExploreComponent},{path:'login',component:LoginComponent},{path:'**',redirectTo:''}];

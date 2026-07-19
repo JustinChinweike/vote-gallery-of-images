@@ -1,0 +1,3 @@
+package com.galleryvote.vote;
+import com.galleryvote.config.JwtSupport; import java.util.List; import org.springframework.http.HttpStatus; import org.springframework.security.core.Authentication; import org.springframework.web.bind.annotation.*;
+@RestController @RequestMapping("/api") public class VoteController {private final VoteService service;private final VoteRepository votes;public VoteController(VoteService s,VoteRepository v){service=s;votes=v;}@PostMapping("/submissions/{id}/votes") @ResponseStatus(HttpStatus.NO_CONTENT) void vote(@PathVariable Long id,Authentication a){service.cast(JwtSupport.userId(a),id);}@GetMapping("/contests/{id}/leaderboard") List<VoteRepository.Score> board(@PathVariable Long id){return votes.leaderboard(id);}}

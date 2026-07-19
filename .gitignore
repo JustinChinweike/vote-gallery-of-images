@@ -1,0 +1,11 @@
+target/
+.idea/
+.vscode/
+*.iml
+nb-configuration.xml
+node_modules/
+frontend/dist/
+.angular/
+.env
+uploads/
+*.log
