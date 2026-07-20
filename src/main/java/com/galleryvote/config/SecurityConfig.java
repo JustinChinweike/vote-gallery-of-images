@@ -25,7 +25,7 @@ public class SecurityConfig {
   .csrf(c->c.disable()).sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
   .authorizeHttpRequests(a->a
    .requestMatchers("/api/auth/**","/actuator/health","/v3/api-docs/**","/swagger-ui/**").permitAll()
-   .requestMatchers(HttpMethod.GET,"/api/contests/**").permitAll()
+   .requestMatchers(HttpMethod.GET,"/api/contests/**","/api/images/**").permitAll()
    .anyRequest().authenticated())
   .oauth2ResourceServer(o->o.jwt(j->j.jwtAuthenticationConverter(JwtSupport.authenticationConverter()))).build();}
 }
