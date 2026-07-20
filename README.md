@@ -145,6 +145,3 @@ docker compose down
 
 To keep your database and uploaded images for the next run, do not add `-v` to that command.
 
-## License
-
-No license has been selected yet. All rights are reserved by the repository owner.
