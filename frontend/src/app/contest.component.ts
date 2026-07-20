@@ -1,0 +1,65 @@
+import {DatePipe} from '@angular/common';
+import {Component, inject, OnInit} from '@angular/core';
+import {ActivatedRoute, RouterLink} from '@angular/router';
+import {forkJoin} from 'rxjs';
+import {ApiService, Contest, Score, Submission} from './api.service';
+import {AuthService} from './auth.service';
+
+@Component({
+  standalone: true,
+  imports: [DatePipe, RouterLink],
+  template: `
+    @if (loading) { <div class="loading">Loading competition…</div> }
+    @else if (contest) {
+      <section class="contest-head">
+        <a routerLink="/">← All competitions</a><div class="status">{{ votingLabel() }}</div>
+        <h1>{{ contest.title }}</h1><p>{{ contest.description }}</p>
+        <small>Hosted by {{ contest.owner }} · {{ contest.startsAt | date:'medium' }} — {{ contest.endsAt | date:'medium' }}</small>
+      </section>
+      <section class="page"><div class="detail-grid"><div>
+        <div class="section-head"><h2>Submissions</h2><span>{{ submissions.length }} entries</span></div>
+        <div class="photo-grid">
+          @for (s of submissions; track s.id) {
+            <article class="photo-card"><img [src]="'/api/images/' + s.objectKey" [alt]="s.title"><div>
+              <h3>{{ s.title }}</h3><p>by {{ s.author }}</p><strong>{{ score(s.id) }} vote{{ score(s.id) === 1 ? '' : 's' }}</strong>
+              @if (auth.signedIn) {
+                <button (click)="vote(s)" [disabled]="voting === s.id || !votingOpen()">
+                  {{ !votingOpen() ? votingLabel() : voting === s.id ? 'Voting…' : 'Vote for this' }}
+                </button>
+              }
+            </div></article>
+          } @empty { <div class="empty"><h3>No submissions yet</h3><p>Be the first photographer to enter.</p></div> }
+        </div>
+      </div><aside>
+        @if (auth.signedIn) {
+          <h2>Submit your work</h2>
+          <label>Image title<input #title placeholder="Give your image a title"></label>
+          <label class="drop">Choose image<input #file type="file" accept="image/jpeg,image/png,image/gif,image/webp" (change)="pick(file.files?.[0])"></label>
+          @if (preview) { <img class="preview" [src]="preview" alt="Selected image preview"> }
+          <button (click)="upload(title.value, file.files?.[0])" [disabled]="uploading">{{ uploading ? 'Uploading…' : 'Upload submission' }}</button>
+        } @else { <h2>Ready to participate?</h2><p>Sign in to upload and vote.</p><a class="button" routerLink="/login">Sign in</a> }
+        @if (message) { <p [class.error]="isError" class="notice">{{ message }}</p> }
+        <h2>Leaderboard</h2><ol>
+          @for (s of ranked(); track s.id) { <li><span>{{ s.title }}</span><strong>{{ score(s.id) }}</strong></li> }
+          @empty { <p>Votes will appear here.</p> }
+        </ol>
+      </aside></div></section>
+    }`,
+})
+export class ContestComponent implements OnInit {
+  private route = inject(ActivatedRoute); api = inject(ApiService); auth = inject(AuthService);
+  contest?: Contest; submissions: Submission[] = []; scores: Score[] = []; loading = true;
+  uploading = false; voting?: number; message = ''; isError = false; preview = '';
+  id = Number(this.route.snapshot.paramMap.get('id'));
+  ngOnInit() { this.refresh(); }
+  refresh() { forkJoin({contest: this.api.contest(this.id), subs: this.api.submissions(this.id), scores: this.api.leaderboard(this.id)}).subscribe({next: r => {this.contest=r.contest;this.submissions=r.subs.content;this.scores=r.scores;this.loading=false;}, error: () => {this.fail('Could not load this competition.');this.loading=false;}}); }
+  votingOpen() { const now=Date.now(); return !!this.contest && this.contest.status==='OPEN' && now>=Date.parse(this.contest.startsAt) && now<Date.parse(this.contest.endsAt); }
+  votingLabel() { if(!this.contest)return '';const now=Date.now();if(now<Date.parse(this.contest.startsAt))return `Voting opens ${new Date(this.contest.startsAt).toLocaleString()}`;if(now>=Date.parse(this.contest.endsAt))return 'Voting closed';return 'Voting open'; }
+  score(id:number){return this.scores.find(x=>x.submissionId===id)?.votes||0;}
+  ranked(){return[...this.submissions].sort((a,b)=>this.score(b.id)-this.score(a.id));}
+  pick(file?:File){if(!file){this.preview='';return;}const reader=new FileReader();reader.onload=()=>this.preview=String(reader.result);reader.readAsDataURL(file);}
+  upload(title:string,file?:File){if(!title.trim()||!file){this.fail('Choose an image and enter a title.');return;}this.uploading=true;this.api.upload(this.id,title.trim(),file).subscribe({next:()=>{this.message='Submission uploaded successfully.';this.isError=false;this.uploading=false;this.preview='';this.refresh();},error:e=>{this.uploading=false;this.fail(this.errorText(e,'Upload failed.'));}});}
+  vote(s:Submission){if(!this.votingOpen()){this.fail(this.votingLabel());return;}this.voting=s.id;this.api.vote(s.id).subscribe({next:()=>{this.message='Your vote was recorded.';this.isError=false;this.voting=undefined;this.refresh();},error:e=>{this.voting=undefined;this.fail(this.errorText(e,'You cannot vote for this submission.'));}});}
+  errorText(e:any,fallback:string){return e?.error?.detail||e?.error?.message||(e?.status===409?'This action is not allowed right now.':fallback);}
+  fail(message:string){this.message=message;this.isError=true;}
+}

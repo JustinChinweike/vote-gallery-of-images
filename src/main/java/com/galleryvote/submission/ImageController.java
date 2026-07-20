@@ -1,0 +1,3 @@
+package com.galleryvote.submission;
+import org.springframework.http.*; import org.springframework.web.bind.annotation.*;
+@RestController @RequestMapping("/api/images") public class ImageController{private final StorageService storage;public ImageController(StorageService s){storage=s;}@GetMapping("/{key}")ResponseEntity<byte[]> image(@PathVariable String key){String type=key.endsWith(".png")?"image/png":key.endsWith(".gif")?"image/gif":key.endsWith(".webp")?"image/webp":"image/jpeg";return ResponseEntity.ok().cacheControl(CacheControl.maxAge(java.time.Duration.ofDays(7))).contentType(MediaType.parseMediaType(type)).body(storage.read(key));}}
