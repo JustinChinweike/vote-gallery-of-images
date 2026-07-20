@@ -13,6 +13,7 @@ import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration @EnableMethodSecurity
@@ -25,7 +26,10 @@ public class SecurityConfig {
   .csrf(c->c.disable()).sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
   .authorizeHttpRequests(a->a
    .requestMatchers("/api/auth/**","/actuator/health","/v3/api-docs/**","/swagger-ui/**").permitAll()
-   .requestMatchers(HttpMethod.GET,"/api/contests/**","/api/images/**").permitAll()
+   .requestMatchers(
+    new AntPathRequestMatcher("/api/contests", "GET"),
+    new AntPathRequestMatcher("/api/contests/**", "GET"),
+    new AntPathRequestMatcher("/api/images/**", "GET")).permitAll()
    .anyRequest().authenticated())
   .oauth2ResourceServer(o->o.jwt(j->j.jwtAuthenticationConverter(JwtSupport.authenticationConverter()))).build();}
 }
