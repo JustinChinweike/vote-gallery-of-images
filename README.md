@@ -2,7 +2,6 @@
 
 GalleryVote is a web application for running image competitions. People can create an account, open themed competitions, upload original images, vote, and follow the leaderboard.
 
-The original school-project version is preserved in the Git tag `legacy-servlet-v1`. The current application is GalleryVote V2.
 
 ## What you can do
 
