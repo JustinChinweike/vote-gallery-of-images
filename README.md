@@ -1,4 +1,3 @@
-````markdown
 # GalleryVote
 
 GalleryVote is a full-stack platform for running timed image competitions. Users can create competitions, upload images, vote on submissions, and follow live leaderboard results.
