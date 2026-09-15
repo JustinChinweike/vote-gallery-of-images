@@ -128,4 +128,3 @@ docker compose down
 ```
 
 This stops the containers while preserving the database and uploaded images.
-````
