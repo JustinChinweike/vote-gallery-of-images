@@ -1,75 +1,61 @@
+````markdown
 # GalleryVote
 
-GalleryVote is a web application for running image competitions. People can create an account, open themed competitions, upload original images, vote, and follow the leaderboard.
+GalleryVote is a full-stack platform for running timed image competitions. Users can create competitions, upload images, vote on submissions, and follow live leaderboard results.
 
+## Features
 
-## What you can do
+- User registration and JWT authentication
+- Timed image competitions
+- Competition search
+- Image uploads with preview and content validation
+- Live vote totals and leaderboard rankings
+- Duplicate-vote prevention
+- Self-vote prevention
+- Responsive design for desktop and mobile
 
-- Register, sign in, and sign out
-- Create an image competition with start and end times
-- Search and browse competitions
-- Upload JPEG, PNG, GIF, and WebP images
-- Preview an image before uploading it
-- Vote once for each eligible submission
-- See live vote totals and leaderboard positions
-- Prevent people from voting for their own images
-- Prevent duplicate votes
-- Use the site on desktop and mobile screens
-
-## Built with
+## Built With
 
 - Java 21 and Spring Boot
+- Spring Security
+- Hibernate/JPA
 - Angular 20 and TypeScript
-- PostgreSQL for users, competitions, submissions, and votes
-- MinIO for uploaded images
-- Docker Compose for local setup
-- Maven and npm for builds
-- GitHub Actions for automatic checks
+- PostgreSQL
+- MinIO
+- Docker Compose
+- JUnit and Mockito
+- GitHub Actions
 
-## What you need
-
-Install these before starting:
+## Requirements
 
 - Java 21 or newer
 - Node.js 22 or newer
 - Docker Desktop
 - Git
 
-You do not need to install Maven separately. The project includes it.
+Maven does not need to be installed separately because the Maven Wrapper is included.
 
-## Run the project on Windows
-
-Open the project folder in IntelliJ IDEA.
+## Running the Project on Windows
 
 ### 1. Start PostgreSQL and MinIO
 
-Open a terminal in the main project folder:
+Make sure Docker Desktop is running, then open a terminal in the project root:
 
 ```powershell
 docker compose up -d postgres minio
 ```
 
-Docker Desktop must be running first.
+### 2. Start the Backend
 
-### 2. Start the Java application
-
-Open this file in IntelliJ:
-
-```text
-src/main/java/com/galleryvote/GalleryVoteApplication.java
-```
-
-Click the green Run button beside `main`.
-
-You can also start it from the terminal:
+Run the application from IntelliJ IDEA or use:
 
 ```powershell
 .\mvnw.cmd spring-boot:run
 ```
 
-### 3. Start the website
+### 3. Start the Frontend
 
-Open a second terminal:
+Open another terminal:
 
 ```powershell
 cd frontend
@@ -77,30 +63,17 @@ npm ci
 npm start
 ```
 
-Open [http://localhost:4200](http://localhost:4200).
+Open [http://localhost:4200](http://localhost:4200) in your browser.
 
-## Test the main workflow
+## Running the Tests
 
-1. Click **Join now** and register Alice.
-2. Click **Create contest**.
-3. Create a competition and choose its voting dates.
-4. Open the competition and upload an image.
-5. Sign out and register Bob.
-6. Open Alice's competition as Bob.
-7. Vote for Alice's image after voting has opened.
-8. Confirm that the leaderboard shows Bob's vote.
-9. Try voting again and confirm that the second vote is rejected.
-10. Upload an image as Bob and confirm that Bob cannot vote for his own image.
-
-## Run the checks
-
-Test the Java application from the main project folder:
+Run the backend tests from the project root:
 
 ```powershell
 .\mvnw.cmd clean test
 ```
 
-Check the website build:
+Build the frontend:
 
 ```powershell
 cd frontend
@@ -108,39 +81,52 @@ npm ci
 npm run build
 ```
 
-## Useful addresses
+## Local Services
 
-| Page | Address |
+| Service | Address |
 |---|---|
-| GalleryVote website | [http://localhost:4200](http://localhost:4200) |
-| Java health check | [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health) |
-| API documentation | [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) |
-| MinIO management page | [http://localhost:9001](http://localhost:9001) |
+| Frontend | [http://localhost:4200](http://localhost:4200) |
+| Backend health check | [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health) |
+| Swagger UI | [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) |
+| MinIO Console | [http://localhost:9001](http://localhost:9001) |
 
-The development MinIO username and password are both `minioadmin`.
-
-## Project folders
+The default MinIO credentials for local development are:
 
 ```text
-frontend/                 Angular website
-src/main/java/            Java application
-src/main/resources/       Settings and database setup
-src/test/                 Automated Java tests
-.github/workflows/        GitHub automatic checks
-compose.yml               Local PostgreSQL and MinIO services
+Username: minioadmin
+Password: minioadmin
 ```
 
-## Keeping passwords safe
+## Project Structure
 
-The passwords in `compose.yml` are only for local development. Real deployment passwords must be supplied through private environment settings. Do not commit `.env` files, real passwords, or cloud access keys.
+```text
+frontend/                 Angular frontend
+src/main/java/            Spring Boot backend
+src/main/resources/       Configuration and database resources
+src/test/                 Backend tests
+.github/workflows/        GitHub Actions workflows
+compose.yml               PostgreSQL and MinIO services
+```
 
-Uploaded images, local settings, build results, IDE files, and installed packages are excluded from Git.
+## Voting Rules
 
-## Stop the local services
+Voting rules are enforced by the backend and database. The application prevents:
+
+- Duplicate votes
+- Voting for your own submission
+- Voting outside the competition period
+
+## Development Credentials
+
+Credentials stored in `compose.yml` are intended only for local development.
+
+Production credentials should be supplied through environment variables. Real passwords, access keys, and `.env` files should not be committed to the repository.
+
+## Stopping the Services
 
 ```powershell
 docker compose down
 ```
 
-To keep your database and uploaded images for the next run, do not add `-v` to that command.
-
+This stops the containers while preserving the database and uploaded images.
+````
